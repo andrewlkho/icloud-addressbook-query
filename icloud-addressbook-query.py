@@ -16,7 +16,8 @@ def query_db(keyword):
     c = connection.cursor()
     k = ("%%%s%%" % keyword,) * 4
     c.execute("""SELECT ZABCDEMAILADDRESS.ZADDRESS, ZABCDRECORD.ZFIRSTNAME,
-              ZABCDRECORD.ZLASTNAME, ZABCDRECORD.ZORGANIZATION
+              ZABCDRECORD.ZLASTNAME, ZABCDRECORD.ZORGANIZATION,
+              ZABCDRECORD.ZDISPLAYFLAGS
               FROM ZABCDEMAILADDRESS
               LEFT OUTER JOIN ZABCDRECORD
               ON ZABCDEMAILADDRESS.ZOWNER = ZABCDRECORD.Z_PK
@@ -31,8 +32,15 @@ def output(results):
     if results:
         print " ".join([str(len(results)), "matching addresses..."])
         for row in results:
-            # Use the organisation as the name if there is one
-            fn = row[3] or " ".join([row[1], row[2]])
+            # If the Company checkbox has been ticked (ZDISPLAYFLAGS=1) then
+            # show the Company name, otherwise use First Last [(Company)]
+            if row[4]:
+                fn = row[3]
+            else:
+                fn = " ".join([row[1], row[2]])
+                if row[3]:
+                    fn = "".join([fn, " (", row[3], ")"])
+
             print "\t".join([row[0], fn])
         sys.exit(0)
     else:
