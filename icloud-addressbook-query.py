@@ -41,7 +41,8 @@ def output(results):
                 if row[3]:
                     fn = "".join([fn, " (", row[3], ")"])
 
-            print "\t".join([row[0], fn])
+            out = "\t".join([row[0], fn])
+            print out.encode("utf-8")
         sys.exit(0)
     else:
         print "No matches"
