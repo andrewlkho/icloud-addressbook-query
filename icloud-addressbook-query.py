@@ -14,7 +14,7 @@ def query_db(keyword):
                                                "AddressBook-v22.abcddb"))
     connection = sqlite3.connect(database)
     c = connection.cursor()
-    k = ("%%%s%%" % keyword,) * 4
+    k = ("%%%s%%" % keyword.decode("utf-8"),) * 4
     c.execute("""SELECT ZABCDEMAILADDRESS.ZADDRESS, ZABCDRECORD.ZFIRSTNAME,
               ZABCDRECORD.ZLASTNAME, ZABCDRECORD.ZORGANIZATION,
               ZABCDRECORD.ZDISPLAYFLAGS
