@@ -15,15 +15,17 @@ def query_db(keyword):
                                                "AddressBook-v22.abcddb"))
     connection = sqlite3.connect(database)
     c = connection.cursor()
-    k = ("%%%s%%" % keyword.decode("utf-8"),) * 4
-    c.execute("""SELECT ZABCDEMAILADDRESS.ZADDRESS, ZABCDRECORD.ZFIRSTNAME,
-              ZABCDRECORD.ZLASTNAME, ZABCDRECORD.ZORGANIZATION,
-              ZABCDRECORD.ZDISPLAYFLAGS
+    k = ("%%%s%%" % keyword.decode("utf-8"),) * 5
+    c.execute("""SELECT ZABCDEMAILADDRESS.ZADDRESS, ZABCDRECORD.ZTITLE,
+              ZABCDRECORD.ZFIRSTNAME, ZABCDRECORD.ZMIDDLENAME,
+              ZABCDRECORD.ZLASTNAME, ZABCDRECORD.ZSUFFIX,
+              ZABCDRECORD.ZORGANIZATION, ZABCDRECORD.ZDISPLAYFLAGS
               FROM ZABCDEMAILADDRESS
               LEFT OUTER JOIN ZABCDRECORD
               ON ZABCDEMAILADDRESS.ZOWNER = ZABCDRECORD.Z_PK
               WHERE ZABCDEMAILADDRESS.ZADDRESS LIKE ?
               OR ZABCDRECORD.ZFIRSTNAME LIKE ?
+              OR ZABCDRECORD.ZMIDDLENAME LIKE ?
               OR ZABCDRECORD.ZLASTNAME LIKE ?
               OR ZABCDRECORD.ZORGANIZATION LIKE ?""", k)
     return [row for row in c]
@@ -36,12 +38,12 @@ def output(results):
         for row in results:
             # If the Company checkbox has been ticked (ZDISPLAYFLAGS=1,129) then
             # show the Company name, otherwise use First Last [(Company)]
-            if row[4] % 2 == 1:
-                fn = row[3]
+            if row[7] % 2 == 1:
+                fn = row[6]
             else:
-                fn = " ".join(name for name in [row[1], row[2]] if name)
-                if row[3]:
-                    fn = "".join([fn, " (", row[3], ")"])
+                fn = " ".join(name for name in row[1:6] if name)
+                if row[6]:
+                    fn = "".join([fn, " (", row[6], ")"])
 
             # Use e-mail address as fn if all other fields are empty
             if not fn:
