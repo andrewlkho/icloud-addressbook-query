@@ -4,6 +4,7 @@ import sys
 import os
 import sqlite3
 
+
 def query_db(keyword):
     """Query the address book for keyword and return the results as a list of
     tuples.
@@ -27,19 +28,24 @@ def query_db(keyword):
               OR ZABCDRECORD.ZORGANIZATION LIKE ?""", k)
     return [row for row in c]
 
+
 def output(results):
     """Take the list of results and print it as per mutt's expected output"""
     if results:
         print " ".join([str(len(results)), "matching addresses..."])
         for row in results:
-            # If the Company checkbox has been ticked (ZDISPLAYFLAGS=1) then
+            # If the Company checkbox has been ticked (ZDISPLAYFLAGS=1,129) then
             # show the Company name, otherwise use First Last [(Company)]
-            if row[4]:
+            if row[4] % 2 == 1:
                 fn = row[3]
             else:
-                fn = " ".join([row[1], row[2]])
+                fn = " ".join(name for name in [row[1], row[2]] if name)
                 if row[3]:
                     fn = "".join([fn, " (", row[3], ")"])
+
+            # Use e-mail address as fn if all other fields are empty
+            if not fn:
+                fn = row[0]
 
             out = "\t".join([row[0], fn])
             print out.encode("utf-8")
@@ -47,6 +53,7 @@ def output(results):
     else:
         print "No matches"
         sys.exit(-1)
+
 
 def main():
     if len(sys.argv) > 1:
