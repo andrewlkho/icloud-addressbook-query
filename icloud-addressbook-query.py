@@ -9,10 +9,20 @@ def query_db(keyword):
     """Query the address book for keyword and return the results as a list of
     tuples.
     """
-    source = os.listdir(os.path.expanduser("~/Library/Application Support/AddressBook/Sources"))[0]
-    database = os.path.expanduser(os.path.join("~/Library/Application Support",
-                                               "AddressBook/Sources", source,
-                                               "AddressBook-v22.abcddb"))
+    sources = os.listdir(os.path.expanduser("~/Library/Application Support/AddressBook/Sources"))
+
+    rows = []
+
+    for source in sources:
+        newrows = query_source_db(keyword, os.path.expanduser(os.path.join("~/Library/Application Support",
+            "AddressBook/Sources", source, "AddressBook-v22.abcddb")))
+
+        for row in newrows:
+            rows.append(row)
+
+    return rows
+
+def query_source_db(keyword, database):
     connection = sqlite3.connect(database)
     c = connection.cursor()
     k = ("%%%s%%" % keyword.decode("utf-8"),) * 5
